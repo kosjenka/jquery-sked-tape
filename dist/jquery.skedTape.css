@@ -330,7 +330,7 @@
     .sked-tape__date:before {
         content: attr(title);
         display: block;
-        margin: 0 5px;
+        margin: 0px;
         text-align: center;
     }
     
