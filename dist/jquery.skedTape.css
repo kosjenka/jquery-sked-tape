@@ -266,8 +266,8 @@
         background-size: 1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%;
         background-repeat: no-repeat;
         background-position: 0 0, 100% 0, 25% 0, 50% 0, 75% 0;
-        min-width: 96px;
-        width: 96px;
+        
+        width: 150px;
     }
 
 .sked-tape__indicator {
