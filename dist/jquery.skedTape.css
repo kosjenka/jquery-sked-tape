@@ -323,6 +323,16 @@
     background: #e0e0e0;
 }
 
+    .sked-tape__date:nth-child(odd) {
+        background: #eee;
+    }
+
+    .sked-tape__date:before {
+        content: attr(title);
+        display: block;
+        margin: 0 5px;
+        text-align: center;
+    }
     
   
 
