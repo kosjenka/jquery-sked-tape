@@ -437,6 +437,9 @@
 				this.$canvas.prepend(this.renderDates());
 			}
 		},
+		
+
+		
 		renderDates: function () {
 			var $ul = $('<ul class="sked-tape__dates"/>');
 			var firstMidnight = getMidnightAfter(this.start);
@@ -445,20 +448,21 @@
 
 			if (firstMidnight > lastMidnight) {
 				// The range is within the same day
-				queue.push({ weight: 1, text: this.format.date(this.start) });
+				queue.push({ weight: 1, text: this.format.date(this.start) })
 			} else {
 				queue.push({
-					weight: getDaysToMidnight(this.start),
+					weight: getMsToMidnight(this.start) / MS_PER_DAY,
 					text: this.format.date(this.start)
 				});
 
 				for (var day = new Date(firstMidnight); day < lastMidnight;) {
-					day.setDate(day.getDate() + 1); // Move to the next day
+					day.setTime(day.getTime() + 1000);
 					queue.push({ weight: 1, text: this.format.date(day) });
+					day.setTime(day.getTime() + MS_PER_DAY - 1000);
 				}
 
 				queue.push({
-					weight: getDaysFromMidnight(this.end),
+					weight: getMsFromMidnight(this.end) / MS_PER_DAY,
 					text: this.format.date(this.end)
 				});
 			}
@@ -467,21 +471,20 @@
 				return total + item.weight;
 			}, 0);
 
+			var duration = this.end.getTime() - this.start.getTime();
+
 			queue.forEach(function (item) {
 				var proportion = item.weight / totalWeight;
 				$('<li/>')
 					.css('width', (proportion * 100).toFixed(10) + '%')
 					.attr('title', item.text)
 					.addClass('sked-tape__date')
-					.toggleClass('sked-tape__date--short', proportion <= SHORT_DURATION)
+					.toggleClass('sked-tape__date--short', proportion * duration <= SHORT_DURATION)
 					.appendTo($ul);
 			});
 
 			return $ul;
 		},
-
-		
-
 			
 		renderGrid: function () {
 			var $ul = $('<ul class="sked-tape__grid"/>');
