@@ -741,7 +741,26 @@
 
 			return $event;
 		},
-		
+		computeEventWidth: function (event) {
+			// Clamp to timeline edge
+			var eventEnd = this.end < event.end ? this.end : event.end;
+
+			// Calculate duration in days instead of hours
+			var durationDays = getDurationDays(event.start, eventEnd);
+
+			// Calculate the percentage width based on the total days in the timeline
+			return (durationDays / getDurationDays(this.start, this.end)) * 100 + '%';
+		},
+
+		// Add a new function to calculate the duration in days
+		getDurationDays: function (start, end) {
+			var millisecondsInDay = 24 * 60 * 60 * 1000;
+			return Math.ceil((end - start) / millisecondsInDay);
+		},
+		computeEventOffset: function (event) {
+			var hoursBeforeEvent = getDurationHours(this.start, event.start);
+			return hoursBeforeEvent / getDurationHours(this.start, this.end) * 100 + '%';
+		},
 		updateTimeIndicatorsPos: function () {
 			var start = this.start.getTime();
 			var end = this.end.getTime();
