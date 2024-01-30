@@ -92,14 +92,9 @@ SkedTape.defaultFormatters = {
 		format += m ? m + min : '';
 		return format;
 	},
-	hours: function (hours) {
-		return (hours < 10 ? '0' : '') + hours + ':00';
+	
 	},
-	time: function (date) {
-		var h = date.getHours();
-		var m = date.getMinutes();
-		return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
-	}
+	
 };
 
 SkedTape.prototype = {
@@ -419,28 +414,7 @@ SkedTape.prototype = {
 			.appendTo($aside);
 		this.$el.append($aside);
 	},
-	renderTimeWrap: function(oldScroll) {
-		var $hours = this.renderHours();
-		var $wrap = $('<div class="sked-tape__time-wrap"/>').appendTo(this.$el);
-		this.$frame = $('<div class="sked-tape__time-frame" tabindex="0"/>')
-			.appendTo($wrap);
-		this.$canvas = $('<div class="sked-tape__time-canvas"/>')
-			.append($hours)
-			.appendTo(this.$frame);
-		oldScroll && this.$frame.scrollLeft(oldScroll);
-		var $timelineWrap = $('<div class="sked-tape__timeline-wrap"/>')
-			.append(this.renderTimeRows())
-			.append(this.renderGrid());
-		var minWidth = this.$canvas[0].scrollWidth;
-		this.$canvas
-			.css('min-width', Math.round(minWidth * this.zoom) + 'px')
-			.data('orig-min-width', minWidth)
-			.append($timelineWrap)
-			.append($hours.clone());
-		if (this.showDates) {
-			this.$canvas.prepend(this.renderDates());
-		}
-	},
+	
 	renderDates: function() {
 		var $ul = $('<ul class="sked-tape__dates"/>');
 		var firstMidnight = getMidnightAfter(this.start);
@@ -479,26 +453,7 @@ SkedTape.prototype = {
 		});
 		return $ul;
 	},
-	renderHours: function() {
-		var $ul = $('<ul/>');
-
-		var tick = new Date(this.start);
-		while (tick.getTime() <= this.end.getTime()) {
-			var hour = tick.getHours();
-
-			var $time = $('<time/>')
-				.attr('datetime', tick.toISOString())
-				.text(this.format.hours(hour === 24 ? 0 : hour));
-			$('<li/>').append($time).appendTo($ul);
-
-			tick.setTime(tick.getTime() + 60*60*1000);
-		}
-
-		var $li = $ul.children();
-		$li.not(':last-child').width(100 / ($li.length - 1) + '%');
-
-		return $('<div class="sked-tape__hours"/>').append($ul);
-	},
+	
 	renderGrid: function() {
 		var $ul = $('<ul class="sked-tape__grid"/>');
 		var tick = new Date(this.start);
@@ -760,16 +715,7 @@ SkedTape.prototype = {
 
 		return $event;
 	},
-	computeEventWidth: function(event) {
-		// Clamp to timeline edge
-		var eventEnd = this.end < event.end ? this.end : event.end;
-		var durationHours = getDurationHours(event.start, eventEnd);
-		return durationHours / getDurationHours(this.start, this.end) * 100 + '%';
-	},
-	computeEventOffset: function(event) {
-		var hoursBeforeEvent =  getDurationHours(this.start, event.start);
-		return hoursBeforeEvent /  getDurationHours(this.start, this.end) * 100 + '%';
-	},
+	
 	updateTimeIndicatorsPos: function() {
 		var start = this.start.getTime();
 		var end = this.end.getTime();
