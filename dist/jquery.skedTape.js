@@ -437,15 +437,7 @@
 				this.$canvas.prepend(this.renderDates());
 			}
 
-			// Ensure the necessary styles for scrollability
-			this.$frame.css({
-				'overflow-x': 'auto',
-				'white-space': 'nowrap',
-			});
-
-			this.$canvas.css({
-				'display': 'inline-block',
-			});
+			
 		},
 
 		
