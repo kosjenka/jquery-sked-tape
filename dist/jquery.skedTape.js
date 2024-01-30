@@ -418,23 +418,21 @@
 			this.$el.append($aside);
 		},
 		renderTimeWrap: function (oldScroll) {
-			
 			var $wrap = $('<div class="sked-tape__time-wrap"/>').appendTo(this.$el);
-			this.$frame = $('<div class="sked-tape__time-frame" tabindex="0"/>')
-				.appendTo($wrap);
-			this.$canvas = $('<div class="sked-tape__time-canvas"/>')
-				
-				.appendTo(this.$frame);
+			this.$frame = $('<div class="sked-tape__time-frame" tabindex="0"/>').appendTo($wrap);
+			this.$canvas = $('<div class="sked-tape__time-canvas"/>').appendTo(this.$frame);
 			oldScroll && this.$frame.scrollLeft(oldScroll);
+
 			var $timelineWrap = $('<div class="sked-tape__timeline-wrap"/>')
 				.append(this.renderTimeRows())
 				.append(this.renderGrid());
+
 			var minWidth = this.$canvas[0].scrollWidth;
 			this.$canvas
 				.css('min-width', Math.round(minWidth * this.zoom) + 'px')
 				.data('orig-min-width', minWidth)
-				.append($timelineWrap)
-				
+				.append($timelineWrap);
+
 			if (this.showDates) {
 				this.$canvas.prepend(this.renderDates());
 			}
@@ -444,79 +442,96 @@
 			var firstMidnight = getMidnightAfter(this.start);
 			var lastMidnight = getMidnightBefore(this.end);
 			var queue = [];
+
 			if (firstMidnight > lastMidnight) {
 				// The range is within the same day
-				queue.push({ weight: 1, text: this.format.date(this.start) })
+				queue.push({ weight: 1, text: this.format.date(this.start) });
 			} else {
 				queue.push({
-					weight: getMsToMidnight(this.start) / MS_PER_DAY,
+					weight: getDaysToMidnight(this.start),
 					text: this.format.date(this.start)
 				});
+
 				for (var day = new Date(firstMidnight); day < lastMidnight;) {
-					day.setTime(day.getTime() + 1000);
+					day.setDate(day.getDate() + 1); // Move to the next day
 					queue.push({ weight: 1, text: this.format.date(day) });
-					day.setTime(day.getTime() + MS_PER_DAY - 1000);
 				}
+
 				queue.push({
-					weight: getMsFromMidnight(this.end) / MS_PER_DAY,
+					weight: getDaysFromMidnight(this.end),
 					text: this.format.date(this.end)
 				});
 			}
+
 			var totalWeight = queue.reduce(function (total, item) {
 				return total + item.weight;
 			}, 0);
-			var duration = this.end.getTime() - this.start.getTime();
+
 			queue.forEach(function (item) {
 				var proportion = item.weight / totalWeight;
 				$('<li/>')
 					.css('width', (proportion * 100).toFixed(10) + '%')
 					.attr('title', item.text)
 					.addClass('sked-tape__date')
-					.toggleClass('sked-tape__date--short', proportion * duration <= SHORT_DURATION)
+					.toggleClass('sked-tape__date--short', proportion <= SHORT_DURATION)
 					.appendTo($ul);
 			});
+
 			return $ul;
 		},
+
 		
 
 			
 		renderGrid: function () {
 			var $ul = $('<ul class="sked-tape__grid"/>');
-			var tick = new Date(this.start);
-			while (tick.getTime() < this.end.getTime()) {
+			var currentDate = new Date(this.start);
+
+			while (currentDate.getTime() < this.end.getTime()) {
 				$('<li/>').appendTo($ul);
-				tick.setTime(tick.getTime() + 60 * 60 * 1000);
+				currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
 			}
+
 			var $li = $ul.children();
 			$li.width(100 / $li.length + '%');
 			return $ul;
 		},
 		renderTimeRows: function () {
 			this.$timeline = $('<ul class="sked-tape__timeline"/>');
+
 			// Sort the events by time ascending so that the gap between each two of
 			// them may be determined in a cycle.
 			var events = this.events.sort($.proxy(function (a, b) {
 				return a.start.getTime() - b.start.getTime();
 			}, this));
+
 			this.timeIndicators = {};
+
 			$.each(this.getLocations(), $.proxy(function (i, location) {
 				var $li = $('<li class="sked-tape__event-row"/>')
 					.data('locationId', location.id)
 					.appendTo(this.$timeline);
+
 				// Render time indicator
 				var $timeIndicator = $('<div class="sked-tape__indicator"/>').hide();
 				if (this.timeIndicatorSerifs)
 					$timeIndicator.addClass('sked-tape__indicator--serifs');
+
 				this.timeIndicators[location.id] = $timeIndicator;
 				$li.append($timeIndicator);
+
 				// Render events
 				var intersections = this.getIntersections(location.id);
-				var lastEndTime = 0, lastEnd;
+				var lastEndTime = new Date(this.start);
+				var lastEnd;
+
 				events.forEach(function (event) {
 					var belongs = event.location == location.id;
 					var visible = event.end > this.start && event.start < this.end;
+
 					if (belongs && visible) {
 						var intersects = false;
+
 						$.each(intersections, $.proxy(function (i, intersection) {
 							$.each(intersection.events, function (j, jEvent) {
 								if (jEvent.id == event.id) {
@@ -526,35 +541,45 @@
 							});
 							if (intersects) return false;
 						}, this));
-						var gap = event.start.getTime() - lastEndTime;
+
+						var gap = this.computeEventOffset(event);
+
 						if (gap >= this.minTimeGapShown && gap <= this.maxTimeGapShown && !intersects) {
 							$li.append(this.renderGap(gap, lastEnd, event.start));
 						}
+
 						lastEnd = event.end;
-						lastEndTime = lastEnd.getTime();
+						lastEndTime = new Date(lastEnd);
+
 						var $event = this.renderEvent(event).appendTo($li);
+
 						if (this.maxTimeGapHi !== false && gap <= this.maxTimeGapHi) {
 							$li.children('.sked-tape__event')
 								.filter(':eq(-1), :eq(-2)')
 								.addClass('sked-tape__event--low-gap');
-						}
-						else if (intersects) {
+						} else if (intersects) {
 							$event.addClass('sked-tape__event--low-gap');
 						}
 					}
 				}, this);
 			}, this));
+
 			this.renderIntersections();
 			return this.$timeline;
 		},
+
+
+
 		renderIntersections: function () {
 			// Remove the stale ones
 			this.$timeline.find('.sked-tape__intersection').remove();
+
 			// Render the new ones
 			this.$timeline.find('.sked-tape__event-row').each($.proxy(function (i, row) {
 				var $row = $(row);
 				var locationId = $row.data('locationId');
 				var intersections = this.getIntersections(locationId);
+
 				$.each(intersections, $.proxy(function (i, intersection) {
 					if (intersection.end > this.start && intersection.start < this.end) {
 						$('<div class="sked-tape__intersection"/>')
@@ -568,10 +593,12 @@
 				}, this));
 			}, this));
 		},
+
 		renderGap: function (gap, start, end) {
 			var block = { start: start, end: end };
 			var $text = $('<span class="sked-tape__gap-text"/>')
-				.text(Math.round(gap / MS_PER_MINUTE));
+				.text(Math.round(gap / MS_PER_DAY)); // Calculate gap in days
+
 			return $('<div class="sked-tape__gap"/>')
 				.css({
 					width: this.computeEventWidth(block),
@@ -579,6 +606,7 @@
 				})
 				.append($text);
 		},
+
 		findEventJustBefore: function (event) {
 			var found = null;
 			$.each(this.events, function (index, iEvent) {
