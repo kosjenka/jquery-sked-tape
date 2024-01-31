@@ -538,7 +538,12 @@
 							if (intersects) return false;
 						}, this));
 
-						
+						var gap = this.computeEventOffset(event);
+
+						if (gap >= this.minTimeGapShown && gap <= this.maxTimeGapShown && !intersects) {
+							$li.append(this.renderGap(gap, lastEnd, event.start));
+						}
+
 						lastEnd = event.end;
 						lastEndTime = new Date(lastEnd);
 
@@ -575,8 +580,8 @@
 					if (intersection.end > this.start && intersection.start < this.end) {
 						$('<div class="sked-tape__intersection"/>')
 							.css({
-								width: this.computeEventWidth(intersection)
-								
+								width: this.computeEventWidth(intersection),
+								left: this.computeEventOffset(intersection)
 							})
 							.data('events', intersection.events)
 							.appendTo($row);
@@ -592,8 +597,8 @@
 
 			return $('<div class="sked-tape__gap"/>')
 				.css({
-					width: this.computeEventWidth(block)
-					
+					width: this.computeEventWidth(block),
+					left: this.computeEventOffset(block)
 				})
 				.append($text);
 		},
@@ -649,8 +654,8 @@
 			// Apply the className, attributes and styles
 			this.$dummyEvent[0].className = 'sked-tape__dummy-event ' + (event.className || '');
 			this.$dummyEvent.css({
-				width: this.computeEventWidth(event)
-				
+				width: this.computeEventWidth(event),
+				left: this.computeEventOffset(event)
 			});
 			var leftText = this.format.time(event.start);
 			var rightText = this.format.time(event.end);
@@ -724,8 +729,8 @@
 				.toggleClass('sked-tape__event--active', !!event.active)
 				.attr('title', event.name)
 				.css({
-					width: this.computeEventWidth(event)
-					
+					width: this.computeEventWidth(event),
+					left: this.computeEventOffset(event)
 				});
 			// Append the center aligner node with text context
 			var $center = $('<div class="sked-tape__center"/>')
@@ -768,7 +773,16 @@
 			return (durationDays * 155) + 'px';
 		},
 
-		
+		computeEventOffset: function (event) {
+			// Calculate the number of full days before the event starts
+			var daysBeforeEvent = Math.floor((event.start - this.start) / MS_PER_DAY);
+
+			// Calculate the percentage offset based on the total days in the timeline
+			var percentageOffset = (daysBeforeEvent / this.daysInTimeline()) * 100;
+
+			// Ensure each day is represented by a grid column of 155 pixels
+			return 'calc(' + percentageOffset + '% * 155px)';
+		},
 
 		daysInTimeline: function () {
 			// Calculate the total number of full days in the timeline
