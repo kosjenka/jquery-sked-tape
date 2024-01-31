@@ -1225,19 +1225,30 @@
 		var max = min === a ? b : a;
 		return max.start - min.end;
 	}
-	function floorHours(date) {
+	//function floorHours(date) {
+	//	var floor = new Date(date);
+	//	floor.setHours(date.getHours(), 0, 0, 0);
+	//	return floor;
+	//}
+	function floorDate(date) {
 		var floor = new Date(date);
-		floor.setHours(date.getHours(), 0, 0, 0);
+		floor.setHours(0, 0, 0, 0);
 		return floor;
 	}
-	function ceilHours(date) {
-		var floor = floorHours(date);
+	//function ceilHours(date) {
+	//	var floor = floorHours(date);
+	//	if (floor < date) { // not equal
+	//		floor.setTime(floor.getTime() + MS_PER_HOUR);
+	//	}
+	//	return floor;
+	//}
+	function ceilDate(date) {
+		var floor = floorDate(date);
 		if (floor < date) { // not equal
-			floor.setTime(floor.getTime() + MS_PER_HOUR);
+			floor.setTime(floor.getTime() + MS_PER_DAY);
 		}
 		return floor;
 	}
-
 	// ---------------------------- jQuery plugin ----------------------------------
 
 	$.fn.skedTape = function (opts) {
