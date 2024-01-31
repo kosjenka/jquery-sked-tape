@@ -93,6 +93,50 @@
     position: relative;
 }
 
+.sked-tape__hours {
+    background: white;
+    transform-style: preserve-3d;
+}
+
+    .sked-tape__hours > ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        height: 24px;
+        align-items: center;
+    }
+
+        .sked-tape__hours > ul > li {
+            flex: none;
+            display: block;
+            position: relative;
+            min-width: 96px;
+            width: 96px;
+            height: 24px;
+            line-height: 24px;
+        }
+
+            .sked-tape__hours > ul > li > time {
+                display: block;
+                position: absolute;
+                left: 0;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .sked-tape__hours > ul > li:not(:first-child) > time {
+                transform: translateX(-50%);
+            }
+
+            .sked-tape__hours > ul > li:last-child {
+                width: 0;
+                min-width: 0;
+            }
+
+                .sked-tape__hours > ul > li:last-child > time {
+                    transform: translateX(-100%);
+                }
 
 .sked-tape__timeline-wrap {
     position: relative;
@@ -181,7 +225,9 @@
     line-height: 16px;
 }
 
-
+    .sked-tape__event:hover, .sked-tape__event--active {
+        background-color: #e74030;
+    }
 
 .sked-tape__event--low-gap {
     background-color: rgba(51, 175, 12, 0.53);
@@ -266,8 +312,8 @@
         background-size: 1px 100%, 1px 100%, 1px 100%, 1px 100%, 1px 100%;
         background-repeat: no-repeat;
         background-position: 0 0, 100% 0, 25% 0, 50% 0, 75% 0;
-        
-        width: 150px;
+        min-width: 96px;
+        width: 96px;
     }
 
 .sked-tape__indicator {
@@ -327,13 +373,34 @@
         background: #eee;
     }
 
-    .sked-tape__date:before {
+    .sked-tape__date:before, .sked-tape__date:after {
         content: attr(title);
         display: block;
-        margin: 0px;
-        text-align: center;
+        width: calc(50% - 20px);
+        height: inherit;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    
-  
 
-  
+    .sked-tape__date:before {
+        float: left;
+        margin-left: 15px;
+        text-align: left;
+    }
+
+    .sked-tape__date:after {
+        float: right;
+        margin-right: 15px;
+        text-align: right;
+    }
+
+.sked-tape__date--short:before {
+    float: none;
+    width: auto;
+    margin: 0 5px;
+    text-align: center;
+}
+
+.sked-tape__date--short:after {
+    display: none;
+}
