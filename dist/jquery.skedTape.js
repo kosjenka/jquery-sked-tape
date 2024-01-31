@@ -103,7 +103,7 @@
 	SkedTape.prototype = {
 		constructor: SkedTape,
 		setTimespan: function (start, end, opts) {
-			if (!isValidDateRange(start, end)) {
+			if (!isValidTimeRange(start, end)) {
 				throw new Error('Invalid date range: ' + JSON.stringify([start, end]));
 			}
 			this.start = floorDate(start);
