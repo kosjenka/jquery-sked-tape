@@ -1114,7 +1114,28 @@
 		 *
 		 * @param {object} picked The position info returned by the pick() function.
 		 */
-		
+		moveDummyEvent: function (picked) {
+			var event = this.dummyEvent;
+			var start = picked.date;
+			if (this.snapToMins) {
+				var hr = floorHours(start);
+				var left = (start.getTime() - hr.getTime()) / MS_PER_MINUTE;
+				var lower = Math.floor(left / this.snapToMins) * this.snapToMins;
+				var min = left - lower < this.snapToMins / 2 ? lower : lower + this.snapToMins;
+				start = new Date(hr.getTime() + Math.round(min * MS_PER_MINUTE));
+			}
+			$.extend(event, {
+				start: start,
+				end: new Date(start.getTime() + event.duration)
+			});
+			if (picked.locationId) {
+				var location = this.getLocation(picked.locationId);
+				if (this.canAddIntoLocation(location, event)) {
+					this.beforeAddIntoLocation(location, event);
+					event.location = picked.locationId;
+				}
+			}
+		},
 		handleMouseMove: function (e) {
 			this.lastPicked = this.pick(e);
 			if (!this.isAdding()) return;
