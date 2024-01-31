@@ -778,10 +778,7 @@
 			var daysBeforeEvent = Math.floor((event.start - this.start) / MS_PER_DAY);
 
 			// Calculate the percentage offset based on the total days in the timeline
-			var percentageOffset = (daysBeforeEvent / this.daysInTimeline()) * 100;
-
-			// Ensure each day is represented by a grid column of 155 pixels
-			return 'calc(' + percentageOffset + '% * 155px)';
+			return (daysBeforeEvent / this.daysInTimeline()) * 100 + '%';
 		},
 
 		daysInTimeline: function () {
