@@ -103,30 +103,22 @@
 	SkedTape.prototype = {
 		constructor: SkedTape,
 		setTimespan: function (start, end, opts) {
-			if (!isValidTimeRange(start, end)) {
-				throw new Error('Invalid time range: ' + JSON.stringify([start, end]));
+			if (!isValidDateRange(start, end)) {
+				throw new Error('Invalid date range: ' + JSON.stringify([start, end]));
 			}
-			this.start = floorHours(start);
-			this.end = ceilHours(end);
+			this.start = floorDate(start);
+			this.end = ceilDate(end);
 			return this.updateUnlessOption(opts);
 		},
-		/**
-		 * A shorthand for `setTimespan()` that sets timespan between some
-		 * specified hours (optional) of a particular date.
-		 */
+		
 		setDate: function (date) {
-			var midnight = new Date(date);
-			
-			var start = new Date(midnight);
-			start.setHours(minHours || 0);
-			if (maxHours && maxHours != 24) {
-				var end = new Date(midnight.getTime());
-				end.setHours(maxHours);
-			} else {
-				var end = new Date(midnight.getTime() + MS_PER_DAY);
-			}
+			var start = new Date(date);
+			var end = new Date(date);
+			end.setDate(end.getDate() + 1); // Set end to the next day
+
 			return this.setTimespan(start, end);
 		},
+
 		getZoom: function () {
 			return this.zoom;
 		},
@@ -1122,28 +1114,7 @@
 		 *
 		 * @param {object} picked The position info returned by the pick() function.
 		 */
-		moveDummyEvent: function (picked) {
-			var event = this.dummyEvent;
-			var start = picked.date;
-			if (this.snapToMins) {
-				var hr = floorHours(start);
-				var left = (start.getTime() - hr.getTime()) / MS_PER_MINUTE;
-				var lower = Math.floor(left / this.snapToMins) * this.snapToMins;
-				var min = left - lower < this.snapToMins / 2 ? lower : lower + this.snapToMins;
-				start = new Date(hr.getTime() + Math.round(min * MS_PER_MINUTE));
-			}
-			$.extend(event, {
-				start: start,
-				end: new Date(start.getTime() + event.duration)
-			});
-			if (picked.locationId) {
-				var location = this.getLocation(picked.locationId);
-				if (this.canAddIntoLocation(location, event)) {
-					this.beforeAddIntoLocation(location, event);
-					event.location = picked.locationId;
-				}
-			}
-		},
+		
 		handleMouseMove: function (e) {
 			this.lastPicked = this.pick(e);
 			if (!this.isAdding()) return;
