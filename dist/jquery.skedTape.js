@@ -768,14 +768,14 @@
 		},
 
 		
-
 		computeEventWidth: function (event) {
 			// Calculate the duration in days (rounded up)
 			var durationDays = Math.ceil((event.end - event.start) / MS_PER_DAY);
 
-			// Calculate the percentage width based on the days in the current month
-			return (durationDays / this.daysInCurrentMonth()) * 100 + '%';
+			// Calculate the percentage width based on the total days in the timeline
+			return (durationDays / this.daysInTimeline()) * 100 + '%';
 		},
+		
 
 		daysInCurrentMonth: function () {
 			// Calculate the total number of full days in the current month
