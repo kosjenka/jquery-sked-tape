@@ -61,15 +61,15 @@
 .sked-tape__caption {
     display: block;
     background-color: white;
-    height: 24px;
+    height: 12px;
     position: relative;
     top: 0;
     text-align: center;
 }
 
 .sked-tape--has-dates .sked-tape__caption {
-    height: 48px;
-    line-height: 48px;
+    height: 24px;
+    line-height: 24px;
 }
 
 
@@ -90,9 +90,7 @@
 
 
 
-.sked-tape__timeline-wrap {
-    position: relative;
-}
+
 
 .sked-tape__timeline {
     list-style: none;
