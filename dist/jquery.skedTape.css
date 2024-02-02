@@ -72,11 +72,7 @@
     line-height: 48px;
 }
 
-.sked-tape__time-wrap {
-    flex: 3 0 auto;
-    width: 0;
-    padding: 0 !important;
-}
+
 
 .sked-tape__time-frame {
     display: block;
