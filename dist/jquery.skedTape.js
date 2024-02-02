@@ -769,10 +769,15 @@
 			// Calculate the duration in days (rounded up)
 			var durationDays = Math.ceil((event.end - event.start) / MS_PER_DAY);
 
-			// Calculate the percentage width based on the total days in the timeline
-			return (durationDays / this.daysInTimeline()) * 100 + '%';
+			// Calculate the percentage width based on the days in the current month
+			return (durationDays / daysInCurrentMonth()) * 100 + '%';
 		},
 
+		daysInCurrentMonth: function () {
+			var currentDate = this.options.start;
+			var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+			return lastDayOfMonth;
+		},
 		computeEventOffset: function (event) {
 			// Calculate the number of full days before the event starts
 			var daysBeforeEvent = Math.floor((event.start - this.start) / MS_PER_DAY);
