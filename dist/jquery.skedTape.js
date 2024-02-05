@@ -82,6 +82,24 @@
 		roundDuration: function (ms) {
 			return ms;
 		},
+		employeeDurationStrings: function (event) {
+			var days = Math.floor((event.end - event.start) / (24 * 60 * 60 * 1000));
+			var startDate = moment(event.start).format('YYYY-MM-DD');
+			var endDate = moment(event.end).format('YYYY-MM-DD');
+			var durationString = (days === 1) ? startDate + ' - ' + endDate + ' (' + days + ' day)' : startDate + ' - ' + endDate + ' (' + days + ' days)';
+			return durationString;
+		},
+
+		location: function (location, event) {
+			var durationString = SkedTape.defaultFormatters.employeeDurationStrings(event);
+
+			// Use durationString as needed
+			console.log(durationString);
+
+			// Assuming you want to display the duration string in a specific way
+			return '<div class="employee-duration">' + durationString + '</div>';
+		},
+
 		duration: function (ms, opts) {
 			var h = Math.floor(ms / MS_PER_HOUR);
 			var m = Math.floor((ms % MS_PER_HOUR) / MS_PER_MINUTE);
@@ -736,18 +754,32 @@
 			var $center = $('<div class="sked-tape__center"/>')
 				.text(event.name)
 				.appendTo($event);
+
+			// Additional customization for duration strings
+			var durationStrings = this.format.employeeDurationStrings(event); 
+
 			if (this.showEventTime || this.showEventDuration) {
 				var html = $center.html();
 				var duration = this.format.roundDuration(event.end - event.start);
+
 				if (this.showEventTime) {
 					html += '<br>' + this.format.time(event.start)
 						+ ' - ' + this.format.time(new Date(event.start.getTime() + duration));
 				}
+
 				if (this.showEventDuration) {
 					html += '<br>' + this.format.duration(duration);
+
+					// Add this block for employee duration strings
+					if (durationStrings && durationStrings.length > 0) {
+						html += '<br>' + durationStrings.join('<br>');
+					}
 				}
+
 				$center.html(html);
 			}
+
+
 			// Bind data-*
 			$event.data($.extend({}, { eventId: event.id }, event.data));
 			// Measure minimum content width to detect whether to attach popover further
