@@ -769,27 +769,15 @@
 
 		
 		computeEventWidth: function (event) {
-			// Calculate the duration in days (rounded up)
-			var durationDays;
-
-			// Check if the event spans across multiple months
-			if (event.start.getMonth() !== event.end.getMonth()) {
-				// If the event starts in the current month, calculate the duration until the end of the month
-				if (event.start.getMonth() === this.start.getMonth()) {
-					var lastDayOfMonth = new Date(event.start.getFullYear(), event.start.getMonth() + 1, 0);
-					durationDays = Math.min(Math.ceil((lastDayOfMonth - event.start) / MS_PER_DAY), this.daysInCurrentMonth());
-				} else { // The event ends in the current month
-					var firstDayOfMonth = new Date(event.end.getFullYear(), event.end.getMonth(), 1);
-					durationDays = Math.min(Math.ceil((event.end - firstDayOfMonth) / MS_PER_DAY), this.daysInCurrentMonth());
-				}
-			} else {
-				// If the event is within the current month, calculate the duration normally
-				durationDays = Math.ceil((event.end - event.start) / MS_PER_DAY);
-			}
-
-			// Calculate the percentage width based on the total days in the current month
-			return (durationDays / this.daysInCurrentMonth()) * 100 + '%';
+			// Clamp to timeline edge
+			var eventEnd = this.end < event.end ? this.end : event.end;
+			var durationDays = getDurationDays(event.start, eventEnd);
+			return (durationDays / getDurationDays(this.start, this.end)) * 100 + '%';
 		},
+
+		function getDurationDays(start, end) {
+		return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+	}
 
 		daysInCurrentMonth: function () {
 			// Calculate the total number of full days in the current month
