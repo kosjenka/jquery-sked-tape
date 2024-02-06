@@ -775,9 +775,7 @@
 			return (durationDays / getDurationDays(this.start, this.end)) * 100 + '%';
 		},
 
-		function getDurationDays(start, end) {
-		return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-	}
+		
 
 		daysInCurrentMonth: function () {
 			// Calculate the total number of full days in the current month
@@ -1233,6 +1231,9 @@
 		d = new Date(d);
 		d.setTime(d.getTime() - getMsFromMidnight(d));
 		return d;
+	}
+	function getDurationDays(start, end) {
+		return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
 	}
 	function gapBetween(a, b) {
 		var min = a.start < b.start ? a : b;
