@@ -495,6 +495,11 @@
 		renderTimeRows: function () {
 			this.$timeline = $('<ul class="sked-tape__timeline"/>');
 
+			// Initialize timeIndicators if not already initialized
+			if (!this.timeIndicators) {
+				this.timeIndicators = {};
+			}
+
 			// Group events by location
 			var eventsByLocation = {};
 			this.events.forEach(function (event) {
@@ -515,7 +520,9 @@
 				if (this.timeIndicatorSerifs)
 					$timeIndicator.addClass('sked-tape__indicator--serifs');
 
+				// Assign timeIndicator to timeIndicators object
 				this.timeIndicators[location.id] = $timeIndicator;
+
 				$li.append($timeIndicator);
 
 				// Render events for the location
@@ -529,6 +536,7 @@
 			this.renderIntersections();
 			return this.$timeline;
 		},
+
 
 
 
