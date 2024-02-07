@@ -762,7 +762,7 @@
 			var lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 			// Return the day of the month
 			return lastDayOfMonth.getDate();
-		}
+		},
 
 
 		
