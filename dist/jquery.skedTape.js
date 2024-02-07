@@ -740,11 +740,30 @@
 
 		
 		computeEventWidth: function (event) {
-			// Clamp to timeline edge
-			var eventEnd = this.end < event.end ? this.end : event.end;
-			var durationDays = getDurationDays(event.start, eventEnd);
-			return (durationDays / getDurationDays(this.start, this.end)) * 100 + '%';
+			var startOfMonth = new Date(this.start.getFullYear(), this.start.getMonth(), 1);
+			var endOfMonth = new Date(this.start.getFullYear(), this.start.getMonth() + 1, 0);
+
+			// Clamp event start and end dates within the current month
+			var eventStart = event.start < startOfMonth ? startOfMonth : event.start;
+			var eventEnd = event.end > endOfMonth ? endOfMonth : event.end;
+
+			// Calculate the duration in days within the current month
+			var durationDays = getDurationDays(eventStart, eventEnd);
+
+			// Calculate the total number of days in the current month
+			var totalDaysInMonth = getDurationDays(startOfMonth, endOfMonth);
+
+			// Calculate the percentage width based on the duration within the current month
+			return (durationDays / totalDaysInMonth) * 100 + '%';
 		},
+
+		getDaysInMonth: function (date) {
+			// Get the last day of the month
+			var lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+			// Return the day of the month
+			return lastDayOfMonth.getDate();
+		}
+
 
 		
 
