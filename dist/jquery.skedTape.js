@@ -500,16 +500,16 @@
 				this.timeIndicators = {};
 			}
 
-			// Group events by location (employee)
-			var eventsByLocation = {};
+			// Group events by employee name
+			var eventsByEmployee = {};
 			this.events.forEach(function (event) {
-				if (!eventsByLocation[event.location]) {
-					eventsByLocation[event.location] = [];
+				if (!eventsByEmployee[event.name]) {
+					eventsByEmployee[event.name] = [];
 				}
-				eventsByLocation[event.location].push(event);
+				eventsByEmployee[event.name].push(event);
 			});
 
-			// Render events for each location (employee)
+			// Render events for each employee
 			$.each(this.getLocations(), $.proxy(function (i, location) {
 				var $li = $('<li class="sked-tape__event-row"/>')
 					.data('locationId', location.id)
@@ -517,32 +517,21 @@
 
 				// Render time indicator
 				var $timeIndicator = $('<div class="sked-tape__indicator"/>').hide();
-				if (this.timeIndicatorSerifs)
+				if (this.timeIndicatorSerifs) {
 					$timeIndicator.addClass('sked-tape__indicator--serifs');
-
+				}
 				// Assign timeIndicator to timeIndicators object
 				this.timeIndicators[location.id] = $timeIndicator;
-
 				$li.append($timeIndicator);
 
-				// Render events for the location (employee)
-				if (eventsByLocation[location.id]) {
-					// Group events by start time
-					var eventsByStartTime = {};
-					eventsByLocation[location.id].forEach(function (event) {
-						var startTime = event.start.getTime();
-						if (!eventsByStartTime[startTime]) {
-							eventsByStartTime[startTime] = [];
-						}
-						eventsByStartTime[startTime].push(event);
-					});
-
+				// Render events for the employee
+				if (eventsByEmployee[location.name]) {
 					// Sort events by start time
-					var startTimes = Object.keys(eventsByStartTime).sort();
-					startTimes.forEach(function (startTime) {
-						eventsByStartTime[startTime].forEach(function (event) {
-							$li.append(this.renderEvent(event));
-						}, this);
+					var sortedEvents = eventsByEmployee[location.name].sort(function (a, b) {
+						return new Date(a.start) - new Date(b.start);
+					});
+					sortedEvents.forEach(function (event) {
+						$li.append(this.renderEvent(event));
 					}, this);
 				}
 			}, this));
