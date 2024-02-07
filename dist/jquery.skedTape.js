@@ -500,7 +500,7 @@
 				this.timeIndicators = {};
 			}
 
-			// Group events by location
+			// Group events by location (employee)
 			var eventsByLocation = {};
 			this.events.forEach(function (event) {
 				if (!eventsByLocation[event.location]) {
@@ -509,7 +509,7 @@
 				eventsByLocation[event.location].push(event);
 			});
 
-			// Render events for each location
+			// Render events for each location (employee)
 			$.each(this.getLocations(), $.proxy(function (i, location) {
 				var $li = $('<li class="sked-tape__event-row"/>')
 					.data('locationId', location.id)
@@ -525,18 +525,31 @@
 
 				$li.append($timeIndicator);
 
-				// Render events for the location
+				// Render events for the location (employee)
 				if (eventsByLocation[location.id]) {
-					eventsByLocation[location.id].forEach($.proxy(function (event) {
-						$li.append(this.renderEvent(event));
-					}, this));
+					// Group events by start time
+					var eventsByStartTime = {};
+					eventsByLocation[location.id].forEach(function (event) {
+						var startTime = event.start.getTime();
+						if (!eventsByStartTime[startTime]) {
+							eventsByStartTime[startTime] = [];
+						}
+						eventsByStartTime[startTime].push(event);
+					});
+
+					// Sort events by start time
+					var startTimes = Object.keys(eventsByStartTime).sort();
+					startTimes.forEach(function (startTime) {
+						eventsByStartTime[startTime].forEach(function (event) {
+							$li.append(this.renderEvent(event));
+						}, this);
+					}, this);
 				}
 			}, this));
 
 			this.renderIntersections();
 			return this.$timeline;
 		},
-
 
 
 
