@@ -495,14 +495,16 @@
 		renderTimeRows: function () {
 			this.$timeline = $('<ul class="sked-tape__timeline"/>');
 
-			// Sort the events by time ascending so that the gap between each two of
-			// them may be determined in a cycle.
-			var events = this.events.sort($.proxy(function (a, b) {
-				return a.start.getTime() - b.start.getTime();
-			}, this));
+			// Group events by location
+			var eventsByLocation = {};
+			this.events.forEach(function (event) {
+				if (!eventsByLocation[event.location]) {
+					eventsByLocation[event.location] = [];
+				}
+				eventsByLocation[event.location].push(event);
+			});
 
-			this.timeIndicators = {};
-
+			// Render events for each location
 			$.each(this.getLocations(), $.proxy(function (i, location) {
 				var $li = $('<li class="sked-tape__event-row"/>')
 					.data('locationId', location.id)
@@ -516,53 +518,18 @@
 				this.timeIndicators[location.id] = $timeIndicator;
 				$li.append($timeIndicator);
 
-				// Render events
-				var intersections = this.getIntersections(location.id);
-				var lastEndTime = new Date(this.start);
-				var lastEnd;
-
-				events.forEach(function (event) {
-					var belongs = event.location == location.id;
-					var visible = event.end > this.start && event.start < this.end;
-
-					if (belongs && visible) {
-						var intersects = false;
-
-						$.each(intersections, $.proxy(function (i, intersection) {
-							$.each(intersection.events, function (j, jEvent) {
-								if (jEvent.id == event.id) {
-									intersects = true;
-									return false;
-								}
-							});
-							if (intersects) return false;
-						}, this));
-
-						var gap = this.computeEventOffset(event);
-
-						if (gap >= this.minTimeGapShown && gap <= this.maxTimeGapShown && !intersects) {
-							$li.append(this.renderGap(gap, lastEnd, event.start));
-						}
-
-						lastEnd = event.end;
-						lastEndTime = new Date(lastEnd);
-
-						var $event = this.renderEvent(event).appendTo($li);
-
-						if (this.maxTimeGapHi !== false && gap <= this.maxTimeGapHi) {
-							$li.children('.sked-tape__event')
-								.filter(':eq(-1), :eq(-2)')
-								.addClass('sked-tape__event--low-gap');
-						} else if (intersects) {
-							$event.addClass('sked-tape__event--low-gap');
-						}
-					}
-				}, this);
+				// Render events for the location
+				if (eventsByLocation[location.id]) {
+					eventsByLocation[location.id].forEach($.proxy(function (event) {
+						$li.append(this.renderEvent(event));
+					}, this));
+				}
 			}, this));
 
 			this.renderIntersections();
 			return this.$timeline;
 		},
+
 
 
 
